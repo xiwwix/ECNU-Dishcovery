@@ -1,0 +1,4 @@
+<view class="container">
+  <image src="/images/logo.jpg" class="logo" animation="{{logoAnimation}}"></image>
+  <text class="text" animation="{{textAnimation}}">正在更新数据喵…</text>
+</view>

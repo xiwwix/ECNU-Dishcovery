@@ -1,0 +1,72 @@
+<!-- index.wxml -->
+
+<view class="container">
+  <!-- 搜索框 -->
+  <view class="search-bar">
+    <input class="search-input" type="text" placeholder="搜索菜品" value="{{searchValue}}" bindinput="onSearchChange"/>
+    <button class="search-button" bindtap="searchDishes">搜索</button>
+    <button class="clear-button" bindtap="clearSearch">清除</button>
+  </view>
+
+<!-- 排序选择 -->
+<view class="sort-bar">
+  <view class="sort-option" bindtap="handleSortOptionChange" data-option="random">随机</view>
+  <view class="sort-option" bindtap="handleSortOptionChange" data-option="name">菜品名</view>
+  <view class="sort-option" bindtap="handleSortOptionChange" data-option="averageRating">菜品评分</view>
+  <view class="sort-option" bindtap="handleSortOptionChange" data-option="ratingCount">评分人数</view>
+  <!-- 直接切换升序和降序的按钮 -->
+  <view class="sort-order" bindtap="toggleSortOrder">{{ selectedSortOrderOption === 'asc' ? '升序' : '降序' }}</view>
+</view>
+
+  <view class="menu-list">
+    <!-- 显示搜索结果或所有菜品 -->
+    <block wx:if="{{searchResult.length > 0}}">
+      <block wx:for="{{searchResult}}" wx:key="index">
+        <!-- 使用navigator组件包裹每个菜品项，实现点击跳转 -->
+        <navigator url="/pages/detail/detail?id={{item._id}}" class="dish-box">
+          <image src="{{item.image}}" class="menu-image" mode="aspectFill" binderror="handleImageError"></image>
+          <view class="menu-info">
+            <view class="menu-name">{{item.name}}</view>
+            <!-- Flex容器 -->
+            <view class="rating-and-number">
+              <view class="menu-rating">
+                <!-- 使用循环生成文本星星，根据平均评分 -->
+                <block wx:for="{{item.stars}}" wx:key="starIndex" wx:for-item="star">
+                  <text class="{{star === 'active' ? 'star-rated' : 'star-unrated'}}">★</text>
+                </block>
+              </view>
+              <!-- 显示计算出的平均评分 -->
+              <view class="original-rating">({{item.averageRating}})</view>
+            </view>
+            <view class="menu-price">{{item.price}}元</view>
+            <view class="menu-description">{{item.description}}</view>
+          </view>
+        </navigator>
+      </block>
+    </block>
+    <block wx:else>
+      <block wx:for="{{dishes}}" wx:key="index">
+        <!-- 使用navigator组件包裹每个菜品项，实现点击跳转 -->
+        <navigator url="/pages/detail/detail?id={{item._id}}" class="dish-box">
+          <image src="{{item.image}}" class="menu-image" mode="aspectFill" binderror="handleImageError"></image>
+          <view class="menu-info">
+            <view class="menu-name">{{item.name}}</view>
+            <!-- Flex容器 -->
+            <view class="rating-and-number">
+              <view class="menu-rating">
+                <!-- 使用循环生成文本星星，根据平均评分 -->
+                <block wx:for="{{item.stars}}" wx:key="starIndex" wx:for-item="star">
+                  <text class="{{star === 'active' ? 'star-rated' : 'star-unrated'}}">★</text>
+                </block>
+              </view>
+              <!-- 显示计算出的平均评分 -->
+              <view class="original-rating">({{item.averageRating}})</view>
+            </view>
+            <view class="menu-price">{{item.price}}元</view>
+            <view class="menu-description">{{item.description}}</view>
+          </view>
+        </navigator>
+      </block>
+    </block>
+  </view>
+</view>

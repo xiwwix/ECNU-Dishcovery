@@ -1,0 +1,48 @@
+<view class="container">
+  <!-- 菜品图片 -->
+  <image src="{{dish.image}}" class="dish-image" mode="aspectFill" bindtap="previewImage"></image>
+
+  <!-- 菜品名称 -->
+  <view class="dish-name">{{dish.name}}</view>
+
+  <!-- 菜品评分和评分次数 -->
+  <view class="dish-rating">
+    <!-- 显示评分 -->
+    <block wx:for="{{dish.stars}}" wx:key="index">
+      <text class="{{item === 'active' ? 'star-rated' : 'star-unrated'}}">★</text>
+    </block>
+    <!-- 显示平均评分 -->
+    <text>{{dish.averageRating}}</text>
+    <!-- 显示评分次数 -->
+    <text>（{{dish.ratingCount}}次评分）</text>
+  </view>
+
+  <!-- 菜品价格 -->
+  <view class="dish-price">价格: ¥{{dish.price}}</view>
+
+  <!-- 菜品描述 -->
+  <view class="dish-description">{{dish.description}}</view>
+
+  <!-- 添加评分按钮 -->
+  <button class="rate-button" bindtap="showRatingModal">评分</button>
+
+  <!-- 评分界面（默认隐藏，点击评分时显示） -->
+  <view class="rating-modal" hidden="{{!showRating}}" catchtap="closeRatingModal">
+    <view class="rating-container" catchtap="stopPropagation">
+      <!-- 评分窗口的标题和关闭按钮 -->
+      <view class="rating-header">
+        <view class="rating-title">请为{{dish.name}}打分</view>
+        <view class="close-rating" bindtap="closeRatingModal">✕</view>
+      </view>
+      <view class="rating-stars">
+        <!-- 使用循环生成星星 -->
+        <block wx:for="{{[1, 2, 3, 4, 5, 6, 7]}}" wx:key="index">
+          <view class="star" bindtap="rate" data-score="{{index}}">
+            <text class="{{score >= index ? 'star-rated' : 'star-unrated'}}">★</text>
+          </view>
+        </block>
+      </view>
+      <button class="submit-button" bindtap="confirmAndClose" disabled="{{isButtonDisabled}}">确认</button>
+    </view>
+  </view>
+</view>
