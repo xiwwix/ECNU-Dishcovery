@@ -24,9 +24,16 @@
   font-weight: bold;
   margin-bottom: 20rpx;
 }
+.actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 保证按钮与头像文字对齐 */
+}
 
 .actions button {
-  width: 90%;
+  width: 92vw;                  /* 使用视口宽度确保在各设备上自动适配 */
+  max-width: 600rpx;            /* 限制最大宽度，防止过宽 */
   height: 88rpx;
   line-height: 88rpx;
   margin: 20rpx 0;
@@ -35,4 +42,5 @@
   background-color: #a31f34;
   color: #fff;
   font-weight: 500;
+  text-align: center;
 }
