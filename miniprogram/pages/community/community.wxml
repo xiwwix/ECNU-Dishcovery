@@ -1,0 +1,31 @@
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <input
+      class="search-input"
+      placeholder="搜索帖子或关键词…"
+      bindinput="onSearchChange"
+      value="{{searchValue}}"
+    />
+    <view class="search-button" bindtap="onSearch">搜索</view>
+    <view class="clear-button" bindtap="clearSearch">清空</view>
+  </view>
+
+  <!-- 帖子列表 -->
+  <block wx:for="{{posts}}" wx:key="index">
+    <view class="post-card">
+      <view class="post-header">
+        <image class="avatar" src="{{item.avatar}}" />
+        <text class="nickname">{{item.nickname}}</text>
+      </view>
+      <view class="post-content">
+        <text>{{item.content}}</text>
+        <view class="image-list">
+          <block wx:for="{{item.images}}" wx:key="index">
+            <image class="post-image" src="{{item}}" mode="aspectFill" />
+          </block>
+        </view>
+      </view>
+    </view>
+  </block>
+</view>

@@ -1,0 +1,87 @@
+.container {
+  padding: 20rpx;
+}
+
+/* 搜索栏 */
+.search-bar {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 20rpx;
+}
+
+.search-input {
+  flex: 1;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid #a31f34;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.search-button,
+.clear-button,
+.model-recommend-button {
+  height: 32px;
+  padding: 0 12px;
+  margin-left: 8px;
+  border-radius: 6px;
+  border: 1px solid #a31f34;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-button {
+  background-color: #a31f34;
+  color: #fff;
+}
+
+/* 帖子卡片样式 */
+.post-card {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10rpx;
+}
+
+.avatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  margin-right: 16rpx;
+}
+
+.nickname {
+  font-weight: bold;
+  font-size: 30rpx;
+  color: #333;
+}
+
+.post-content text {
+  display: block;
+  font-size: 28rpx;
+  color: #444;
+  margin-bottom: 10rpx;
+}
+
+.image-list {
+  display: flex;
+  gap: 10rpx;
+  flex-wrap: wrap;
+}
+
+.post-image {
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 12rpx;
+  object-fit: cover;
+}

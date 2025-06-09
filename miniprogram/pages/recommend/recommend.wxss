@@ -1,0 +1,64 @@
+.container {
+  padding: 20rpx;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  margin-bottom: 30rpx;
+}
+
+.input-box {
+  border: 1px solid #ccc;
+  border-radius: 10rpx;
+  padding: 16rpx;
+  font-size: 28rpx;
+}
+
+.result-text {
+  font-size: 28rpx;
+  color: red;
+  margin-bottom: 20rpx;
+}
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.dish-box {
+  border: 1px solid #ddd;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  background-color: #fff;
+  display: flex;
+}
+
+.menu-image {
+  width: 150rpx;
+  height: 150rpx;
+  margin-right: 20rpx;
+  border-radius: 8rpx;
+}
+
+.menu-info {
+  flex: 1;
+}
+
+.menu-name {
+  font-size: 30rpx;
+  font-weight: bold;
+  margin-bottom: 10rpx;
+}
+
+.menu-price {
+  color: #888;
+  margin-bottom: 6rpx;
+}
+
+.menu-description {
+  color: #666;
+  font-size: 26rpx;
+}

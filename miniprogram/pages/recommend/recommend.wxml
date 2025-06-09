@@ -1,0 +1,22 @@
+<view class="container">
+  <view class="header">
+    <input class="input-box" placeholder="请输入您的需求..." bindinput="onInput" />
+    <button bindtap="onVoiceInput">语音输入</button>
+    <button bindtap="onAskModel">提交</button>
+  </view>
+
+  <view class="result-text">{{ result }}</view>
+
+  <view class="menu-list">
+    <block wx:for="{{dishes}}" wx:key="index">
+      <navigator url="/pages/detail/detail?id={{item._id}}" class="dish-box">
+        <image src="{{item.image}}" class="menu-image" mode="aspectFill"></image>
+        <view class="menu-info">
+          <view class="menu-name">{{item.name}}</view>
+          <view class="menu-price">{{item.price}}元</view>
+          <view class="menu-description">{{item.description}}</view>
+        </view>
+      </navigator>
+    </block>
+  </view>
+</view>

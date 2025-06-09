@@ -1,27 +1,32 @@
-// 云函数 index.js
 const cloud = require('wx-server-sdk');
-
-cloud.init({
-  env: cloud.DYNAMIC_CURRENT_ENV
-});
+cloud.init({ env: 'cloud1-3gf7sz6fbf1f4d83' });
+const db = cloud.database();
 
 exports.main = async (event, context) => {
-  const db = cloud.database();
   const { dishId, score } = event;
+  const openid = cloud.getWXContext().OPENID;
+
+  if (!dishId || typeof score !== 'number' || score < 0 || score > 5) {
+    return { success: false, message: '参数错误' };
+  }
 
   try {
-    const numericScore = Number(score);
     const dishRef = db.collection('dishes').doc(dishId);
-    const dishResult = await dishRef.get();
-    const dishData = dishResult.data;
+    const dishRes = await dishRef.get();
 
-    const ratingSum = Number(dishData.ratingSum) || 0;
-    const ratingCount = Number(dishData.ratingCount) || 0;
+    if (!dishRes.data) {
+      return {
+        success: false,
+        message: '找不到菜品',
+        dishId
+      };
+    }
 
-    const newRatingSum = ratingSum + numericScore;
-    const newRatingCount = ratingCount + 1;
+    const oldData = dishRes.data;
+    const newRatingSum = (oldData.ratingSum || 0) + score;
+    const newRatingCount = (oldData.ratingCount || 0) + 1;
 
-    // 更新菜品的评分信息，移除了 averageRating 的更新
+    // 更新菜品评分信息
     await dishRef.update({
       data: {
         ratingSum: newRatingSum,
@@ -29,14 +34,28 @@ exports.main = async (event, context) => {
       }
     });
 
-    // 返回成功结果，仅包括新的总评分和评分次数
+    // 同步记录评分行为
+    await db.collection('userActions').add({
+      data: {
+        openid,
+        dishId,
+        action: 'rate',
+        score,
+        timestamp: Date.now()
+      }
+    });
+
     return {
       success: true,
-      newRatingSum: newRatingSum,
-      newRatingCount: newRatingCount,
+      newRatingSum,
+      newRatingCount
     };
-  } catch (error) {
-    console.error('submitRating error:', error);
-    return { success: false, errorMessage: error.message };
+  } catch (err) {
+    console.error('🔥 submitRating 错误：', err);
+    return {
+      success: false,
+      message: '数据库错误',
+      error: err.message || err
+    };
   }
 };

@@ -5,47 +5,55 @@ Page({
     logoAnimation: {},
     textAnimation: {}
   },
-  onLoad: function() {
+  onLoad: function () {
     this.animateElements();
     this.checkDataAndRedirect();
   },
-  animateElements: function() {
+  animateElements: function () {
     const logoAnimation = wx.createAnimation({
-      duration: 1000, // 动画持续时间，单位ms
+      duration: 1000,
       timingFunction: 'ease',
     });
 
     const textAnimation = wx.createAnimation({
-      duration: 1000, // 动画持续时间，单位ms
+      duration: 1000,
       timingFunction: 'ease',
     });
 
-    logoAnimation.opacity(1).scale(1.2, 1.2).step(); // logo图片由透明变为不透明，且稍微放大
-    textAnimation.opacity(1).step({ delay: 500 }); // 文本动画，延迟500ms后由透明变为不透明
+    logoAnimation.opacity(1).scale(1.2, 1.2).step();
+    textAnimation.opacity(1).step({ delay: 500 });
 
     this.setData({
       logoAnimation: logoAnimation.export(),
       textAnimation: textAnimation.export()
     });
   },
-  checkDataAndRedirect: function() {
-    if (app.globalData.dishesLoaded) {
-      // 如果数据已加载，延迟一段时间后跳转，确保用户可以看到splash动画
-      setTimeout(() => {
-        wx.reLaunch({
-          url: '/pages/index/index',
-        })
-      }, 500); // 延时跳转，确保动画可以展示一段时间
-    } else {
-      // 如果数据未加载完成，每100ms检查一次
-      const checkInterval = setInterval(() => {
+  checkDataAndRedirect: function () {
+    wx.cloud.callFunction({
+      name: 'getUserPreference',
+      success: res => {
+        const hasData = res.result && res.result.hasData;
+        const targetUrl = hasData ? '/pages/index/index' : '/pages/onboarding/onboarding';
+
+        const redirect = () => {
+          wx.reLaunch({ url: targetUrl });
+        };
+
         if (app.globalData.dishesLoaded) {
-          clearInterval(checkInterval);
-          wx.reLaunch({
-            url: '/pages/index/index',
-          });
+          setTimeout(redirect, 500);
+        } else {
+          const checkInterval = setInterval(() => {
+            if (app.globalData.dishesLoaded) {
+              clearInterval(checkInterval);
+              redirect();
+            }
+          }, 100);
         }
-      }, 100);
-    }
+      },
+      fail: err => {
+        console.error("⚠️ 获取用户偏好失败，默认跳转问卷页", err);
+        wx.reLaunch({ url: '/pages/onboarding/onboarding' });
+      }
+    });
   }
 });

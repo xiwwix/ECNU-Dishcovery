@@ -2,11 +2,12 @@
   "pages": [
     "pages/splash/splash",
     "pages/index/index",
-    "pages/detail/detail"
+    "pages/detail/detail",
+    "pages/onboarding/onboarding",
+    "pages/community/community",
+    "pages/profile/profile"
   ],
-
   "lazyCodeLoading": "requiredComponents",
-
   "window": {
     "navigationBarBackgroundColor": "#ffffff",
     "navigationBarTextStyle": "black",
@@ -15,10 +16,40 @@
     "backgroundTextStyle": "light",
     "enablePullDownRefresh": false
   },
-
+  "tabBar": {
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "干饭",
+        "iconPath": "icons/eat.png",
+        "selectedIconPath": "icons/eat_selected.png"
+      },
+      {
+        "pagePath": "pages/community/community",
+        "text": "社区",
+        "iconPath": "icons/community.png",
+        "selectedIconPath": "icons/community_selected.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我",
+        "iconPath": "icons/me.png",
+        "selectedIconPath": "icons/me_selected.png"
+      }
+    ],
+    "color": "#999999",
+    "selectedColor": "#333333",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black"
+  },
   "networkTimeout": {
     "request": 10000,
     "downloadFile": 10000
   },
-  "debug": false
+  "debug": false,
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于推荐离你最近的食堂"
+    }
+  }
 }

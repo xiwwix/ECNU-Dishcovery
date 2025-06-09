@@ -83,59 +83,59 @@ Page({
     });
   },
 
-  submitRating: function() {
-    const that = this;
+  submitRating: function () {
     const { score, dish } = this.data;
-    if (score >= 0) {
-        wx.cloud.callFunction({
-            name: 'submitRating',
-            data: {
-                dishId: dish._id,
-                score: score + 1
-            },
-            success: function(res) {
-                if (res.result.success) {
-                    const newRatingSum = res.result.newRatingSum;
-                    const newRatingCount = res.result.newRatingCount;
-                    const newAverageRating = (newRatingSum / newRatingCount).toFixed(3);
-                    const activeStarCount = Math.round(newAverageRating);
-                    const activeStars = Array(activeStarCount).fill('active');
-                    const inactiveStars = Array(7 - activeStarCount).fill('inactive');
-
-                    // 更新全局菜品评分
-                    app.updateDishScore(dish._id, newRatingSum, newRatingCount, newAverageRating);
-
-                    // 设置数据以更新页面
-                    that.setData({
-                        'dish.averageRating': newAverageRating,
-                        'dish.ratingCount': newRatingCount,
-                        'dish.stars': [...activeStars, ...inactiveStars],
-                        showRating: false, // 隐藏评分界面
-                        score: 4 // 重置评分为默认值
-                    });
-
-                    wx.showToast({
-                        title: '评分成功',
-                    });
-                    eventBus.emit('dishUpdated', { dishId: dish._id, newAverageRating, newRatingCount });
-                } else {
-                    wx.showToast({
-                        title: '评分失败，请稍后重试',
-                        icon: 'none'
-                    });
-                }
-            },
-            fail: function(err) {
-                console.error('调用云函数失败：', err);
-            }
-        });
+    if (score >= 0 && score <= 5) {
+      wx.cloud.callFunction({
+        name: 'submitRating',
+        data: {
+          dishId: dish._id,
+          score: score
+        },
+        success: res => {
+          if (res.result.success) {
+            const { newRatingSum, newRatingCount } = res.result;
+            const newAverageRating = (newRatingSum / newRatingCount).toFixed(1);
+            const activeStarCount = Math.round(newAverageRating);
+            const stars = Array(activeStarCount).fill('active')
+              .concat(Array(7 - activeStarCount).fill('inactive'));
+  
+            // 更新全局数据
+            app.updateDishScore(dish._id, newRatingSum, newRatingCount);
+  
+            this.setData({
+              'dish.averageRating': newAverageRating,
+              'dish.ratingCount': newRatingCount,
+              'dish.stars': stars,
+              showRating: false,
+              score: 4
+            });
+  
+            wx.showToast({ title: '评分成功' });
+  
+            // 通知其他页面
+            eventBus.emit('dishUpdated', {
+              dishId: dish._id,
+              newAverageRating,
+              newRatingCount
+            });
+          } else {
+            wx.showToast({ title: '评分失败，请稍后重试', icon: 'none' });
+          }
+        },
+        fail: err => {
+          console.error('调用 submitRating 云函数失败：', err);
+          wx.showToast({ title: '系统错误', icon: 'none' });
+        },
+        complete: () => {
+          wx.hideLoading();
+        }
+      });
     } else {
-        wx.showToast({
-            title: '请选择评分',
-            icon: 'none'
-        });
+      wx.showToast({ title: '请选择评分', icon: 'none' });
     }
   },
+  
         // 关闭评分模态框
         closeRatingModal: function() {
           this.setData({

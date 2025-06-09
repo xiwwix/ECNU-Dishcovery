@@ -1,0 +1,36 @@
+<view class="container">
+  <view class="title">欢迎来到花狮吃饭喵！</view>
+
+  <!-- 第一部分：用餐时对各因素的重视程度 -->
+  <view class="subtitle">请问您在用餐时对以下因素有多重视？（0=不重视，5=非常重视）</view>
+  <view class="section">
+    <block wx:for="{{importanceList}}" wx:key="key">
+      <view class="item">
+        <text class="label">{{item.label}}</text>
+        <slider min="0" max="5" step="1" show-value
+                value="{{importance[item.key] || 3}}"
+                bindchange="onImportanceChange"
+                data-key="{{item.key}}" />
+      </view>
+    </block>
+  </view>
+
+  <!-- 第二部分：具体口味偏好 -->
+  <view class="subtitle">您对以下口味的喜好程度如何？（0=不喜欢，5=非常喜欢）</view>
+  <view class="section">
+    <block wx:for="{{['甜','辣','咸','酸','清淡']}}" wx:key="index">
+      <view class="item">
+        <text class="label">{{item}}</text>
+        <slider min="0" max="5" step="1" show-value
+                value="{{tasteScore[item] || 3}}"
+                bindchange="onTasteChange"
+                data-key="{{item}}" />
+      </view>
+    </block>
+  </view>
+
+  <!-- 提交按钮 -->
+  <view class="submit-wrapper">
+    <button type="primary" bindtap="onSubmit">提交并进入首页</button>
+  </view>
+</view>

@@ -1,29 +1,30 @@
-// utils/eventBus.js
-class EventBus {
-  constructor() {
-    this.events = {};
-  }
-
-  // 监听事件
-  on(event, listener) {
-    (this.events[event] || (this.events[event] = [])).push(listener);
-  }
-
-  // 触发事件
-  emit(event, ...args) {
-    (this.events[event] || []).slice().forEach(listener => listener(...args));
-  }
-
-  // 移除事件监听
-  off(event, listener) {
-    if (this.events[event]) {
-      const index = this.events[event].indexOf(listener);
-      if (index > -1) {
-        this.events[event].splice(index, 1);
-      }
-    }
-  }
+// utils/eventBus.js（兼容写法）
+function EventBus() {
+  this.events = {};
 }
 
+EventBus.prototype.on = function(event, listener) {
+  if (!this.events[event]) this.events[event] = [];
+  this.events[event].push(listener);
+};
+
+EventBus.prototype.emit = function(event) {
+  var args = Array.prototype.slice.call(arguments, 1);
+  var listeners = this.events[event] || [];
+  listeners.slice().forEach(function(listener) {
+    listener.apply(null, args);
+  });
+};
+
+EventBus.prototype.off = function(event, listener) {
+  var listeners = this.events[event];
+  if (listeners) {
+    var index = listeners.indexOf(listener);
+    if (index !== -1) {
+      listeners.splice(index, 1);
+    }
+  }
+};
+
 const eventBus = new EventBus();
-export default eventBus;
+module.exports = eventBus;
