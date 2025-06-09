@@ -13,7 +13,12 @@ Page({
     tasteList: ['甜', '辣', '咸', '酸', '清淡']  // 口味维度
   },
 
-  onLoad() {
+  onLoad(options) {
+    // 如果是从“我”页跳转来的，允许重复填写
+    if (options.source === 'profile') {
+      return;
+    }
+
     wx.cloud.callFunction({
       name: 'getUserPreference',
       success: res => {
@@ -66,7 +71,7 @@ Page({
       },
       success: () => {
         wx.showToast({ title: '提交成功', icon: 'success' });
-        wx.reLaunch({ url: '/pages/index/index' });
+        wx.navigateBack(); // 返回上一页
       },
       fail: err => {
         console.error('保存失败：', err);

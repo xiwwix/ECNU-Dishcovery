@@ -1,1 +1,38 @@
-/* pages/profile/profile.wxss */
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60rpx 20rpx;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 40rpx;
+}
+
+.avatar {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+  margin-bottom: 20rpx;
+}
+
+.nickname {
+  font-size: 36rpx;
+  font-weight: bold;
+  margin-bottom: 20rpx;
+}
+
+.actions button {
+  width: 90%;
+  height: 88rpx;
+  line-height: 88rpx;
+  margin: 20rpx 0;
+  font-size: 32rpx;
+  border-radius: 16rpx;
+  background-color: #a31f34;
+  color: #fff;
+  font-weight: 500;
+}

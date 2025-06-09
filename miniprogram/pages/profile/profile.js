@@ -1,66 +1,40 @@
-// pages/profile/profile.js
 Page({
-
-  /**
-   * 页面的初始数据
-   */
   data: {
-
+    avatarUrl: '/images/default-avatar.png', // 默认头像
+    nickName: '未登录用户', // 默认昵称
+    hasUserInfo: false,
+    canIUseGetUserProfile: wx.canIUse('getUserProfile')
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
-  onLoad(options) {
-
+  onLoad() {
+    // 可拓展：从缓存或数据库中读取头像昵称
   },
 
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady() {
-
+  onGetUserProfile() {
+    wx.getUserProfile({
+      desc: '用于完善用户信息',
+      success: res => {
+        this.setData({
+          avatarUrl: res.userInfo.avatarUrl,
+          nickName: res.userInfo.nickName,
+          hasUserInfo: true
+        });
+      },
+      fail: () => {
+        wx.showToast({ title: '获取失败', icon: 'none' });
+      }
+    });
   },
 
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow() {
-
+  goToQuestionnaire() {
+    wx.navigateTo({
+      url: '/pages/onboarding/onboarding?source=profile'
+    });
   },
 
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide() {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload() {
-
-  },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh() {
-
-  },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom() {
-
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage() {
-
+  goToReport() {
+    wx.navigateTo({
+      url: '/pages/report/index' // 请确保你有 report 页面
+    });
   }
-})
+});
