@@ -1,0 +1,43 @@
+<view class="report-container" wx:if="{{!loading && report}}">
+  <view class="section">
+    <view class="section-title">🧬 你的吃货类型</view>
+    <view class="section-content">{{report.type}}</view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">👅 口味偏好</view>
+    <view class="tag-list">
+      <view wx:for="{{report.tastePreference}}" wx:key="*this" class="tag">{{item}}</view>
+    </view>
+  </view>
+
+  <view class="section">
+  <view class="section-title">🧭 探索家风格</view>
+  <view class="style-tags">
+    <view wx:for="{{report.explorerStyle}}" wx:key="*this" class="tag">{{item}}</view>
+  </view>
+</view>
+
+
+  <view class="section">
+    <view class="section-title">📌 常见标签</view>
+    <view class="tag-list">
+      <view wx:for="{{report.topTags}}" wx:key="*this" class="tag highlight">{{item}}</view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">🏆 勋章成就</view>
+    <view class="badge-list">
+      <view wx:for="{{report.badges}}" wx:key="*this" class="badge">{{item}}</view>
+    </view>
+  </view>
+
+  <view class="footer">
+    🍽️ 你总共探索了 {{report.clickCount}} 道菜品，真是个认真的吃货！
+  </view>
+</view>
+
+<view wx:if="{{loading}}" class="loading">
+  <text>报告加载中...</text>
+</view>

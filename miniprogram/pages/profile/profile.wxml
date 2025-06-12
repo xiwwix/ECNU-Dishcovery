@@ -8,5 +8,6 @@
   <view class="actions">
     <button bindtap="goToQuestionnaire">重新填写问卷</button>
     <button bindtap="goToReport">查看趣味报告</button>
+
   </view>
 </view>

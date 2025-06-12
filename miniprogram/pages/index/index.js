@@ -8,7 +8,6 @@ Page({
     searchValue: '',
     dishesLoaded: false,
     isSmartSorted: false,
-    smartSortedDishes: [],
     sortOptions: [
       { key: 'smart', text: '智能排序' },
       { key: 'location', text: '位置优先' },
@@ -27,6 +26,8 @@ Page({
     selectedNearestCanteen: null
   },
 
+  /* ---------------- 生命周期 ---------------- */
+
   onLoad() {
     this.loadDishesFromGlobalData();
     eventBus.on('dishUpdated', this.dishUpdatedHandler.bind(this));
@@ -36,28 +37,19 @@ Page({
     eventBus.off('dishUpdated');
   },
 
-  dishUpdatedHandler(data) {
-    const updatedDish = app.globalData.dishes.find(d => d._id === data.dishId);
-    if (updatedDish) {
-      this.updateDisplayDishes();
-    }
-  },
-
   onShow() {
-    this.loadDishesFromGlobalData();
-    wx.cloud.callFunction({
-      name: 'getUserPreference',
-      success: res => {
-        const pref = res.result || {};
-        if (pref.hasData) {
-          this.onSmartSortLoad();
-        }
-      },
-      fail: err => {
-        console.warn("获取用户偏好失败：", err);
-      }
+    /* 进入页面先重置智能排序标志 */
+    this.setData({
+      selectedSortOptionIndex: 0, // 0 == 'smart'
+      isSmartSorted: false
+    }, () => {
+      this.loadDishesFromGlobalData(); // 保证 originalDishes 有数据
+      this.onSmartSortLoad();          // 强制重新拉协同过滤
     });
   },
+  
+
+  /* ---------------- 数据加载 ---------------- */
 
   loadDishesFromGlobalData() {
     if (app.globalData.dishesLoaded) {
@@ -66,36 +58,42 @@ Page({
         return { ...dish, tried };
       });
 
-      this.setData({
-        originalDishes: dishesWithTriedFlag,
-        dishesLoaded: true
-      }, this.updateDisplayDishes);
+      this.setData(
+        { originalDishes: dishesWithTriedFlag, dishesLoaded: true },
+        this.updateDisplayDishes
+      );
     } else {
-      console.error("全局菜品数据未加载");
+      console.error('全局菜品数据未加载');
     }
   },
 
+  dishUpdatedHandler() {
+    this.loadDishesFromGlobalData();
+  },
+
+  /* ---------------- 搜索 & 过滤 ---------------- */
+
   onSearchChange(e) {
-    this.setData({ searchValue: e.detail.value.trim() }, this.updateDisplayDishes);
+    const value = e.detail.value.trim();
+    this.setData({ searchValue: value }, this.updateDisplayDishes);
+
+    if (value) {
+      wx.cloud.callFunction({
+        name: 'logUserBehavior',
+        data: { type: 'search', searchKeywords: [value] }
+      });
+    }
   },
 
   clearSearch() {
     this.setData({ searchValue: '' }, this.updateDisplayDishes);
   },
 
-  searchDishes() {
-    this.updateDisplayDishes();
-  },
-
   onSortPickerChange(e) {
-    const newIndex = parseInt(e.detail.value);
+    const newIndex = Number(e.detail.value);
     this.setData({ selectedSortOptionIndex: newIndex }, () => {
       const sortKey = this.data.sortOptions[newIndex].key;
-      if (sortKey === 'location') {
-        this.getUserLocationAndSort();
-      } else {
-        this.updateDisplayDishes();
-      }
+      sortKey === 'location' ? this.getUserLocationAndSort() : this.updateDisplayDishes();
     });
   },
 
@@ -103,6 +101,8 @@ Page({
     const tags = e.detail.value.map(i => this.data.filterTags[0][i]);
     this.setData({ selectedFilterTags: tags }, this.updateDisplayDishes);
   },
+
+  /* ---------------- 显示刷新 ---------------- */
 
   updateDisplayDishes() {
     const {
@@ -112,94 +112,144 @@ Page({
       sortOptions,
       selectedFilterTags,
       isSmartSorted,
-      smartSortedDishes,
       selectedNearestCanteen
     } = this.data;
 
     const sortKey = sortOptions[selectedSortOptionIndex].key;
-    let filtered = originalDishes;
+    let filtered = originalDishes.slice(); // 拷贝数组避免副作用
 
+    /* 1. 位置筛选 */
     if (sortKey === 'location' && selectedNearestCanteen) {
       filtered = filtered.filter(d => d.location === selectedNearestCanteen);
     }
 
+    /* 2. 搜索关键词 */
     if (searchValue) {
-      filtered = filtered.filter(dish => dish.name.includes(searchValue));
+      filtered = filtered.filter(d => d.name.includes(searchValue));
     }
 
-    if (selectedFilterTags.length > 0 && sortKey !== 'location') {
-      filtered = filtered.filter(dish =>
-        dish.tags && selectedFilterTags.some(tag => dish.tags.includes(tag))
+    /* 3. 标签过滤（非位置排序场景） */
+    if (selectedFilterTags.length && sortKey !== 'location') {
+      filtered = filtered.filter(
+        d => d.tags && selectedFilterTags.some(tag => d.tags.includes(tag))
       );
     }
 
+    /* 4. 排序逻辑 */
     if (sortKey === 'rating') {
       filtered = filtered
-        .map(d => ({ ...d, _ratingScore: parseFloat(d.averageRating) || 0 }))
+        .map(d => ({ ...d, _ratingScore: Number(d.averageRating) || 0 }))
         .sort((a, b) => b._ratingScore - a._ratingScore);
+
     } else if (sortKey === 'price') {
-      filtered = filtered
-        .filter(d => typeof d.price === 'number')
+      filtered = filtered.filter(d => typeof d.price === 'number')
         .sort((a, b) => a.price - b.price);
+
     } else if (sortKey === 'smart' && isSmartSorted) {
+      // ----- 协同过滤排序 -----
+      console.log('🧠 [智能排序] 参与排序的菜品与得分：');
+      filtered.forEach(d => console.log(`   - ${d.name}: ${d._sortScore}`));
+
       filtered.sort((a, b) => (b._sortScore || 0) - (a._sortScore || 0));
+
+      console.log('✅ [智能排序] 排序结果：',
+        filtered.map(d => ({ name: d.name, score: d._sortScore }))
+      );
     }
 
     this.setData({ dishes: filtered });
   },
 
+  /* ---------------- 智能推荐（协同过滤） ---------------- */
+
+  onSmartSortLoad() {
+    // 若已加载过一次则不重复调用
+    // if (this.data.isSmartSorted) return;
+
+    wx.showLoading({ title: '加载推荐中...' });
+    wx.cloud.callFunction({
+      name: 'collaborativeRecommend',
+      success: res => {
+        const recList = (res.result && res.result.recommended) || [];
+        if (!recList.length) {
+          console.warn('⚠️ 协同过滤返回为空，降级到默认排序');
+          this.setData({ isSmartSorted: true }, this.updateDisplayDishes);
+          return;
+        }
+
+        // 构建 dishId => score 映射；若无 score 字段，则用排名倒序作为分数
+        const scoreMap = {};
+        recList.forEach((item, idx) => {
+          const id = item.dishId || item._id || item.id;
+          const score = typeof item.score === 'number' ? item.score : recList.length - idx;
+          scoreMap[id] = score;
+        });
+        console.log('📊 智能推荐得分表：', scoreMap);
+
+        // 给 originalDishes 注入 _sortScore
+        const updated = this.data.originalDishes.map(d => ({
+          ...d,
+          _sortScore: scoreMap[d._id] || 0
+        }));
+
+        this.setData(
+          { originalDishes: updated, isSmartSorted: true },
+          this.updateDisplayDishes
+        );
+      },
+      fail: err => {
+        console.error('❌ 协同过滤云函数失败：', err);
+        this.setData({ isSmartSorted: true }, this.updateDisplayDishes);
+      },
+      complete: () => wx.hideLoading()
+    });
+  },
+
+  /* ---------------- 位置相关 ---------------- */
+
   getUserLocationAndSort() {
-    const that = this;
     wx.getSetting({
-      success(settingRes) {
-        const auth = settingRes.authSetting;
-        if (auth['scope.userLocation'] === false) {
+      success: settingRes => {
+        if (settingRes.authSetting['scope.userLocation'] === false) {
           wx.showModal({
             title: '位置权限未开启',
             content: '请前往设置页面开启位置权限，以使用位置优先推荐功能',
             confirmText: '去设置',
-            success(modalRes) {
-              if (modalRes.confirm) {
-                wx.openSetting();
-              }
-            }
+            success: modalRes => modalRes.confirm && wx.openSetting()
           });
-        } else {
-          wx.getLocation({
-            type: 'gcj02',
-            success(res) {
-              const userLoc = { latitude: res.latitude, longitude: res.longitude };
-              that.setData({ userLocation: userLoc });
-
-              const canteenCoords = that.data.canteenCoordinates;
-              let nearest = null;
-              let minDist = Infinity;
-
-              Object.keys(canteenCoords).forEach(c => {
-                const dist = that.getDistance(
-                  userLoc.latitude,
-                  userLoc.longitude,
-                  canteenCoords[c].latitude,
-                  canteenCoords[c].longitude
-                );
-                if (dist < minDist) {
-                  minDist = dist;
-                  nearest = c;
-                }
-              });
-
-              that.setData({ selectedNearestCanteen: nearest }, () => {
-                wx.showToast({ title: `已推荐${nearest}`, icon: 'success' });
-                that.updateDisplayDishes();
-              });
-            },
-            fail(err) {
-              console.warn('获取位置失败：', err);
-              wx.showToast({ title: '无法获取位置', icon: 'none' });
-            }
-          });
+          return;
         }
+
+        wx.getLocation({
+          type: 'gcj02',
+          success: res => this._handleLocationSuccess(res),
+          fail: err => {
+            console.warn('获取位置失败：', err);
+            wx.showToast({ title: '无法获取位置', icon: 'none' });
+          }
+        });
       }
+    });
+  },
+
+  _handleLocationSuccess(res) {
+    const userLoc = { latitude: res.latitude, longitude: res.longitude };
+    this.setData({ userLocation: userLoc });
+
+    // 计算最近食堂
+    const { canteenCoordinates } = this.data;
+    let nearest = null, minDist = Infinity;
+    Object.keys(canteenCoordinates).forEach(c => {
+      const d = this.getDistance(
+        userLoc.latitude, userLoc.longitude,
+        canteenCoordinates[c].latitude, canteenCoordinates[c].longitude
+      );
+      if (d < minDist) { minDist = d; nearest = c; }
+    });
+
+    this.setData({ selectedNearestCanteen: nearest }, () => {
+      wx.showToast({ title: `已推荐${nearest}`, icon: 'success' });
+      this.updateDisplayDishes();
     });
   },
 
@@ -209,41 +259,29 @@ Page({
     const dLat = toRad(lat2 - lat1);
     const dLon = toRad(lon2 - lon1);
     const a = Math.sin(dLat / 2) ** 2 +
-      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-      Math.sin(dLon / 2) ** 2;
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
+              Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+              Math.sin(dLon / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   },
 
-  onSmartSortLoad() {
-    wx.showLoading({ title: '加载推荐中...' });
-    wx.cloud.callFunction({
-      name: 'collaborativeRecommend',
-      success: res => {
-        if (res.result && res.result.success && res.result.recommended.length > 0) {
-          this.setData({
-            smartSortedDishes: res.result.recommended,
-            isSmartSorted: true
-          }, this.updateDisplayDishes);
-        } else {
-          console.log('⚠️ 智能推荐为空，使用默认排序');
-          this.setData({ isSmartSorted: true }, this.updateDisplayDishes);
-        }
-      },
-      fail: err => {
-        console.error('智能推荐云函数失败：', err);
-        this.setData({ isSmartSorted: true }, this.updateDisplayDishes);
-      },
-      complete: () => {
-        wx.hideLoading();
-      }
+  /* ---------------- 其他交互 ---------------- */
+
+  onDishClick(e) {
+    const dishId = e.currentTarget.dataset.id;
+    const dish = this.data.dishes.find(d => d._id === dishId);
+
+    // 记录点击行为
+    dish && wx.cloud.callFunction({
+      name: 'logUserBehavior',
+      data: { type: 'click', dishName: dish.name, tags: dish.tags || [] }
     });
+
+    wx.navigateTo({ url: `/pages/detail/detail?id=${dishId}` });
   },
 
   onMarkTried(e) {
     const dishId = e.currentTarget.dataset.id;
     const triedKey = `tried_${dishId}`;
-
     if (wx.getStorageSync(triedKey)) {
       wx.showToast({ title: '你已经标记吃过啦', icon: 'none' });
       return;
@@ -252,20 +290,15 @@ Page({
     wx.cloud.callFunction({
       name: 'updateTriedCount',
       data: { dishId },
-      success: res => {
+      success: () => {
         wx.setStorageSync(triedKey, true);
         wx.showToast({ title: '已标记为吃过', icon: 'success' });
 
-        const dishes = this.data.dishes.map(d => {
-          if (d._id === dishId) {
-            return {
-              ...d,
-              tried: true,
-              triedCount: (d.triedCount || 0) + 1
-            };
-          }
-          return d;
-        });
+        const dishes = this.data.dishes.map(d =>
+          d._id === dishId
+            ? { ...d, tried: true, triedCount: (d.triedCount || 0) + 1 }
+            : d
+        );
         this.setData({ dishes });
       },
       fail: err => {
@@ -275,26 +308,14 @@ Page({
     });
   },
 
-  onDishClick(e) {
-    const dishId = e.currentTarget.dataset.id;
-    wx.cloud.callFunction({
-      name: 'recordAction',
-      data: {
-        dishId,
-        actionType: 'click'
-      }
-    });
-    wx.navigateTo({ url: `/pages/detail/detail?id=${dishId}` });
+  handleImageError(e) {
+    const idx = e.currentTarget.dataset.index;
+    const list = this.data.dishes;
+    list[idx].image = '/images/default.png';
+    this.setData({ dishes: list });
   },
 
   goToModelRecommend() {
     wx.navigateTo({ url: '/pages/recommend/recommend' });
-  },
-
-  handleImageError(e) {
-    const index = e.currentTarget.dataset.index;
-    const list = this.data.dishes;
-    list[index].image = '/images/default.png';
-    this.setData({ dishes: list });
   }
 });

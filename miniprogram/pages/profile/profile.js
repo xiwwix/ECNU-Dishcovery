@@ -34,7 +34,7 @@ Page({
 
   goToReport() {
     wx.navigateTo({
-      url: '/pages/report/index' // 请确保你有 report 页面
+      url: '/pages/report/report' // 请确保你有 report 页面
     });
   }
 });
