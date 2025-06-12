@@ -3,12 +3,12 @@
   <view class="search-bar">
     <input
       class="search-input"
-      placeholder="搜索帖子或关键词…"
+      placeholder="{{lang.community_search_ph}}"
       bindinput="onSearchChange"
       value="{{searchValue}}"
     />
-    <view class="search-button" bindtap="onSearch">搜索</view>
-    <view class="clear-button" bindtap="clearSearch">清空</view>
+    <view class="search-button" bindtap="onSearch">{{lang.community_search_btn}}</view>
+    <view class="clear-button" bindtap="clearSearch">{{lang.community_clear_btn}}</view>
   </view>
 
   <!-- 帖子列表 -->

@@ -1,12 +1,11 @@
 {
   "pages": [
-    "pages/splash/splash",
     "pages/index/index",
     "pages/detail/detail",
     "pages/onboarding/onboarding",
     "pages/community/community",
     "pages/profile/profile",
-    "pages/report/report"
+    "pages/language/language"
   ],
   "lazyCodeLoading": "requiredComponents",
   "window": {

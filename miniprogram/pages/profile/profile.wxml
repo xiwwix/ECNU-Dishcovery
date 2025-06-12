@@ -2,12 +2,12 @@
   <view class="user-info">
     <image class="avatar" src="{{avatarUrl}}" />
     <text class="nickname">{{nickName}}</text>
-    <button wx:if="{{!hasUserInfo}}" bindtap="onGetUserProfile">获取微信头像昵称</button>
+    <button wx:if="{{!hasUserInfo}}" bindtap="onGetUserProfile">{{lang.get_profile}}</button>
   </view>
 
   <view class="actions">
-    <button bindtap="goToQuestionnaire">重新填写问卷</button>
-    <button bindtap="goToReport">查看趣味报告</button>
-
+    <button bindtap="goToQuestionnaire">{{lang.questionnaire}}</button>
+    <button bindtap="goToReport">{{lang.report}}</button>
+    <button bindtap="goToLanguage">{{lang.language_setting}}</button>
   </view>
 </view>
