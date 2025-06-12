@@ -5,24 +5,24 @@
       <input
         class="search-input"
         type="text"
-        placeholder="搜索菜品"
+        placeholder="{{lang.index_search}}"
         value="{{searchValue}}"
         bindinput="onSearchChange"
       />
-      <button class="search-button" bindtap="searchDishes">搜索</button>
-      <button class="model-recommend-button" bindtap="goToModelRecommend">🤖 模型推荐</button>
+      <button class="search-button" bindtap="searchDishes">{{lang.index_search_btn}}</button>
+      <button class="model-recommend-button" bindtap="goToModelRecommend">🤖 {{lang.index_model}}</button>
     </view>
   </view>
 
   <!-- 菜单栏 -->
   <view class="menu-bar">
     <picker mode="selector" range="{{sortOptions}}" range-key="text" bindchange="onSortPickerChange">
-      <view class="picker-item">排序方式：{{sortOptions[selectedSortOptionIndex].text}}</view>
+      <view class="picker-item">{{lang.index_sort_by}}：{{sortOptions[selectedSortOptionIndex].text}}</view>
     </picker>
     <picker mode="multiSelector" range="{{filterTags}}" bindchange="onFilterChange">
       <view class="picker-item">
-        更多规则：
-        {{selectedFilterTags.length > 0 ? selectedFilterTags.join('，') : '全部'}}
+        {{lang.index_more_rules}}：
+        {{selectedFilterTags.length > 0 ? selectedFilterTags.join('，') : lang.index_all}}
       </view>
     </picker>
   </view>
@@ -50,7 +50,7 @@
               </view>
               <view class="original-rating">({{item.averageRating}})</view>
             </view>
-            <view class="menu-price">{{item.price}}元</view>
+            <view class="menu-price">{{item.price}}{{lang.currency_unit}}</view>
             <view class="menu-description">{{item.description}}</view>
           </view>
         </view>
@@ -62,7 +62,7 @@
               class="rating-button"
               data-id="{{item._id}}"
               bindtap="onDishClick"
-            >评分</button>
+            >{{lang.index_rate}}</button>
           </view>
         </view>
       </view>

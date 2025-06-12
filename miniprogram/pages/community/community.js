@@ -1,3 +1,6 @@
+const i18n = require('../../utils/i18n');
+const setTabText = require('../../utils/setTabText');
+
 Page({
   data: {
     searchValue: '',
@@ -17,7 +20,12 @@ Page({
       ]
     });
   },
-
+  onShow() {
+    const language = wx.getStorageSync('language') || 'zh';
+    const lang = i18n[language];
+    this.setData({ lang });
+    setTabText(language);
+  },
   onSearchChange(e) {
     this.setData({
       searchValue: e.detail.value

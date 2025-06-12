@@ -1,14 +1,31 @@
+const i18n = require('../../utils/i18n');
+const setTabText = require('../../utils/setTabText');
+
+
 Page({
   data: {
-    avatarUrl: '/images/default-avatar.png', // 默认头像
-    nickName: '未登录用户', // 默认昵称
+    avatarUrl: '/images/default.png',
+    nickName: '',
     hasUserInfo: false,
-    canIUseGetUserProfile: wx.canIUse('getUserProfile')
+    canIUseGetUserProfile: wx.canIUse('getUserProfile'),
+    lang: {}  // 存放当前语言文案
   },
 
-  onLoad() {
-    // 可拓展：从缓存或数据库中读取头像昵称
+  onShow() {
+    const language = wx.getStorageSync('language') || 'zh';
+    const lang = i18n[language];
+    setTabText(language);
+    const nickName = this.data.hasUserInfo
+      ? this.data.nickName
+      : lang.nickname_default;
+  
+    this.setData({
+      lang,
+      nickName
+    });
+    
   },
+  
 
   onGetUserProfile() {
     wx.getUserProfile({
@@ -34,7 +51,13 @@ Page({
 
   goToReport() {
     wx.navigateTo({
-      url: '/pages/report/report' // 请确保你有 report 页面
+      url: '/pages/report/index'
+    });
+  },
+
+  goToLanguage() {
+    wx.navigateTo({
+      url: '/pages/language/language'
     });
   }
 });

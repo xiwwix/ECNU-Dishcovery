@@ -1,0 +1,14 @@
+.language-container {
+  padding: 30rpx;
+  background-color: #f8f8f8;
+}
+
+.language-item {
+  background-color: white;
+  margin-bottom: 20rpx;
+  padding: 30rpx;
+  border-radius: 12rpx;
+}
+.selected {
+  border: 2rpx solid orange;
+}

@@ -1,0 +1,8 @@
+<view class="language-container">
+  <view class="language-item" bindtap="setLanguage" data-lang="zh" wx:class="{{language === 'zh' ? 'selected' : ''}}">
+    简体中文
+  </view>
+  <view class="language-item" bindtap="setLanguage" data-lang="en" wx:class="{{language === 'en' ? 'selected' : ''}}">
+    English
+  </view>
+</view>

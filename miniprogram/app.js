@@ -5,7 +5,8 @@ App({
     dishes: [],
     recommendedDishes: [], // ⭐ 新增
     dishesLoaded: false,
-    userInfo: null
+    userInfo: null,
+    language: wx.getStorageSync('language') || 'zh'
   },
 
   onLaunch() {
@@ -18,13 +19,13 @@ App({
       });
 
       this.eventBus = eventBus;
-
       // ⭐ 数据加载完成后拉取推荐
       this.fetchDishesData(() => {
         this.checkUserPreference();
         this.fetchSmartRecommendation(); // ⭐
       });
     }
+    this.globalData.language = wx.getStorageSync('language') || 'zh';
   },
 
   fetchDishesData(callback) {
