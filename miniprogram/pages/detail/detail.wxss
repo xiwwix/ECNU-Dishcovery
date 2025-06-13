@@ -1,8 +1,8 @@
 /* detail.wxss */
 .container {
-  width: 100%; /* 确保容器宽度为100% */
+  width: 100%;
   padding: 20px;
-  box-sizing: border-box; /* 添加这个属性以包含内边距 */
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -27,20 +27,35 @@
 }
 
 .star-image {
-  width: 30px; /* 星星图标大小 */
+  width: 30px;
   height: 30px;
   margin-right: 5px;
 }
 
+/* ⭐ 新增：用于布局五颗星展示 */
+.star-group {
+  display: flex;
+  justify-content: center;
+  gap: 10rpx;
+  margin-bottom: 20rpx;
+}
+
+.star {
+  width: 48rpx;
+  height: 48rpx;
+}
+
+/* 🔺 END 修改区域 */
+
 .dish-price {
   font-size: 20px;
-  color: #a31f34; /* 价格颜色 */
+  color: #a31f34;
   margin-bottom: 10px;
 }
 
 .dish-description {
   font-size: 16px;
-  color: #666; /* 描述颜色 */
+  color: #666;
   text-align: center;
 }
 
@@ -67,7 +82,7 @@
 .rating-container {
   background-color: #fff;
   padding: 20px;
-  border-radius: 10px; 
+  border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   position: relative;
 }
@@ -77,12 +92,6 @@
   justify-content: center;
 }
 
-.star {
-  font-size: 30px;
-  margin: 0 5px;
-  cursor: pointer;
-}
-
 .star-rated {
   color: #a31f34;
 }
@@ -90,7 +99,6 @@
 .star-unrated {
   color: #ccc;
 }
-
 
 .submit-button {
   display: block;

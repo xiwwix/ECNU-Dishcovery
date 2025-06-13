@@ -1,0 +1,70 @@
+.report-container {
+  padding: 40rpx 32rpx;
+  background-color: #fafafa;
+  font-size: 30rpx;
+  color: #333;
+}
+
+.section {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.05);
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  margin-bottom: 20rpx;
+  color: #a31f34;
+}
+
+.section-content {
+  font-size: 28rpx;
+  color: #444;
+}
+
+.tag-list,
+.style-tags,
+.badge-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.tag {
+  background-color: #eee;
+  color: #333;
+  padding: 12rpx 24rpx;
+  border-radius: 32rpx;
+  font-size: 28rpx;
+}
+
+.tag.highlight {
+  background-color: #ffd4d4;
+  color: #a31f34;
+  font-weight: bold;
+}
+
+.badge {
+  background-color: #ffe4b5;
+  color: #8b4513;
+  padding: 10rpx 20rpx;
+  border-radius: 24rpx;
+  font-size: 28rpx;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 40rpx;
+  font-size: 26rpx;
+  color: #999;
+}
+
+.loading {
+  padding: 200rpx;
+  text-align: center;
+  font-size: 32rpx;
+  color: #999;
+}

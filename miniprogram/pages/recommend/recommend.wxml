@@ -1,22 +1,27 @@
-<view class="container">
-  <view class="header">
-    <input class="input-box" placeholder="请输入您的需求..." bindinput="onInput" />
-    <button bindtap="onVoiceInput">语音输入</button>
-    <button bindtap="onAskModel">提交</button>
-  </view>
+<view class="chat-container">
+  <view class="chat-header">{{lang.recommend_title}}</view>
 
-  <view class="result-text">{{ result }}</view>
+  <scroll-view class="chat-box" scroll-y="true">
+    <block wx:for="{{messages}}" wx:key="index">
+      <view wx:if="{{item.type === 'text'}}" class="message {{item.role}}-message">
+        <text>{{item.content}}</text>
+      </view>
 
-  <view class="menu-list">
-    <block wx:for="{{dishes}}" wx:key="index">
-      <navigator url="/pages/detail/detail?id={{item._id}}" class="dish-box">
-        <image src="{{item.image}}" class="menu-image" mode="aspectFill"></image>
-        <view class="menu-info">
-          <view class="menu-name">{{item.name}}</view>
-          <view class="menu-price">{{item.price}}元</view>
-          <view class="menu-description">{{item.description}}</view>
+      <view wx:elif="{{item.type === 'dish'}}" class="bot-message message dish-card">
+        <image src="{{item.image}}" class="dish-img" mode="aspectFill" />
+        <view class="dish-info">
+          <text class="dish-name">{{item.name}}</text>
         </view>
-      </navigator>
+      </view>
     </block>
+  </scroll-view>
+
+  <view class="chat-input">
+    <input 
+  placeholder="{{lang.recommend_input_placeholder}}" 
+  value="{{userInput}}" 
+  bindinput="onInputChange" 
+/>
+<button bindtap="onSend">{{lang.recommend_send_button}}</button>
   </view>
 </view>

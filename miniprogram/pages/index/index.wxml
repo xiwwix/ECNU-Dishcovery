@@ -9,7 +9,7 @@
         value="{{searchValue}}"
         bindinput="onSearchChange"
       />
-      <button class="search-button" bindtap="searchDishes">{{lang.index_search_btn}}</button>
+      <button class="search-button" bindtap="clearSearch">{{lang.index_search_btn}}</button>
       <button class="model-recommend-button" bindtap="goToModelRecommend">🤖 {{lang.index_model}}</button>
     </view>
   </view>
@@ -19,12 +19,10 @@
     <picker mode="selector" range="{{sortOptions}}" range-key="text" bindchange="onSortPickerChange">
       <view class="picker-item">{{lang.index_sort_by}}：{{sortOptions[selectedSortOptionIndex].text}}</view>
     </picker>
-    <picker mode="multiSelector" range="{{filterTags}}" bindchange="onFilterChange">
-      <view class="picker-item">
-        {{lang.index_more_rules}}：
-        {{selectedFilterTags.length > 0 ? selectedFilterTags.join('，') : lang.index_all}}
-      </view>
-    </picker>
+    <view class="filter-entry" bindtap="openFilterPopup">
+      {{lang.index_more_rules}}：
+      {{selectedFilterText || lang.index_all}}
+    </view>
   </view>
 
   <!-- 菜品列表 -->
@@ -55,17 +53,44 @@
           </view>
         </view>
 
-        <!-- 评分按钮区域 -->
-        <view class="dish-bottom">
-          <view class="button-group">
-            <button
-              class="rating-button"
-              data-id="{{item._id}}"
-              bindtap="onDishClick"
-            >{{lang.index_rate}}</button>
+        <!-- 标签 + 按钮同一行 -->
+        <view class="dish-bottom-row">
+          <view class="dish-tags">
+            <view class="dish-tag location">{{item.location}}</view>
+            <block wx:for="{{item.tags}}" wx:key="*this">
+              <view class="dish-tag">{{item}}</view>
+            </block>
           </view>
+          <button
+            class="rating-button"
+            data-id="{{item._id}}"
+            bindtap="onDishClick"
+          >{{lang.index_rate}}</button>
         </view>
       </view>
     </block>
+  </view>
+
+  <!-- 弹出层：筛选分类选择 -->
+  <view class="popup-mask" wx:if="{{showFilterPopup}}">
+    <view class="filter-popup">
+      <block wx:for="{{filterCategories}}" wx:key="category">
+        <view class="filter-section">
+          <view class="section-title">{{item.label}}</view>
+          <checkbox-group data-category="{{item.key}}" bindchange="onCheckboxChange">
+            <label wx:for="{{item.options}}" wx:key="*this">
+              <checkbox value="{{item.value}}" checked="{{item.checked}}" />
+              {{item.value}}
+            </label>
+          </checkbox-group>
+        </view>
+      </block>
+
+      <view class="popup-buttons">
+        <button bindtap="confirmFilter">{{lang.filter_confirm}}</button>
+        <button bindtap="closeFilterPopup">{{lang.filter_cancel}}</button>
+      </view>
+
+    </view>
   </view>
 </view>

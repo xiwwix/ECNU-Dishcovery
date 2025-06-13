@@ -98,7 +98,7 @@ Page({
             const newAverageRating = (newRatingSum / newRatingCount).toFixed(1);
             const activeStarCount = Math.round(newAverageRating);
             const stars = Array(activeStarCount).fill('active')
-              .concat(Array(7 - activeStarCount).fill('inactive'));
+              .concat(Array(5 - activeStarCount).fill('inactive'));
   
             // 更新全局数据
             app.updateDishScore(dish._id, newRatingSum, newRatingCount);

@@ -51,7 +51,7 @@ Page({
 
   goToReport() {
     wx.navigateTo({
-      url: '/pages/report/index'
+      url: '/pages/report/report'
     });
   },
 

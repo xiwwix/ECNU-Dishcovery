@@ -5,7 +5,9 @@
     "pages/onboarding/onboarding",
     "pages/community/community",
     "pages/profile/profile",
-    "pages/language/language"
+    "pages/language/language",
+    "pages/recommend/recommend",
+    "pages/report/report"
   ],
   "lazyCodeLoading": "requiredComponents",
   "window": {

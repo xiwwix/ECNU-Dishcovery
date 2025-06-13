@@ -1,40 +1,89 @@
+const app = getApp();
+const i18n = require('../../utils/i18n');
+
 Page({
   data: {
-    question: '',
-    result: '',
-    dishes: []
+    messages: [],
+    userInput: '',
+    lang: {}
   },
 
-  onInput(e) {
-    this.setData({ question: e.detail.value });
+  onLoad() {
+    const language = wx.getStorageSync('language') || 'zh';
+    const lang = i18n[language];
+
+    this.setData({
+      lang,
+      messages: [
+        { type: 'text', role: 'bot', content: lang.recommend_greeting }
+      ]
+    });
   },
 
-  onVoiceInput() {
-    // 这里可调用微信API录音或语音识别接口
-    wx.showToast({ title: '暂未接入语音', icon: 'none' });
+  onInputChange(e) {
+    this.setData({ userInput: e.detail.value });
   },
 
-  onAskModel() {
-    const { question } = this.data;
-    const dishes = getApp().globalData.dishes;
+  onSend() {
+    const input = this.data.userInput.trim();
+    if (!input) return;
 
-    wx.showLoading({ title: '推荐中...' });
+    const messages = [...this.data.messages, { type: 'text', role: 'user', content: input }];
+    this.setData({ messages, userInput: '' });
+
+    this.appendThinking();
 
     wx.cloud.callFunction({
-      name: 'modelRecommend',
+      name: 'recommendDishesByLLM',
       data: {
-        question,
-        dishes
+        userQuery: input,
+        dishList: app.globalData.dishes || []
+      },
+      success: res => {
+        this.removeThinking();
+        const names = res.result.recommendedDishNames || [];
+        const all = app.globalData.dishes || [];
+        const matched = all.filter(d => names.includes(d.name));
+
+        if (matched.length > 0) {
+          this.appendMessage('bot', this.data.lang.recommend_result_prefix);
+          matched.forEach(dish => {
+            this.appendDishCard(dish.name, dish.image);
+          });
+        } else {
+          this.appendMessage('bot', this.data.lang.recommend_no_result);
+        }
+      },
+      fail: err => {
+        console.error('云函数调用失败：', err);
+        this.removeThinking();
+        this.appendMessage('bot', this.data.lang.recommend_error);
       }
-    }).then(res => {
-      const result = res.result;
-      if (result && result.recommended && result.recommended.length > 0) {
-        this.setData({ result: '', dishes: result.recommended });
-      } else {
-        this.setData({ result: '找不到指定的菜品', dishes: [] });
-      }
-    }).catch(() => {
-      this.setData({ result: '推荐失败', dishes: [] });
-    }).finally(() => wx.hideLoading());
+    });
+  },
+
+  appendMessage(role, content) {
+    const messages = [...this.data.messages, { type: 'text', role, content }];
+    this.setData({ messages });
+  },
+
+  appendDishCard(name, image) {
+    const messages = [...this.data.messages, { type: 'dish', name, image }];
+    this.setData({ messages });
+  },
+
+  appendThinking() {
+    const thinking = this.data.lang?.recommend_thinking || '我来帮你想想...';
+    const messages = [...this.data.messages, { type: 'text', role: 'bot', content: thinking }];
+    this.setData({ messages });
+  },
+
+  removeThinking() {
+    const msg = this.data.lang?.recommend_thinking || '我来帮你想想...';
+    const messages = this.data.messages;
+    if (messages.length && messages[messages.length - 1].content === msg) {
+      messages.pop();
+      this.setData({ messages });
+    }
   }
 });
