@@ -1,27 +1,39 @@
 <view class="chat-container">
-  <view class="chat-header">{{lang.recommend_title}}</view>
-
-  <scroll-view class="chat-box" scroll-y="true">
+  <scroll-view scroll-y="true" class="chat-box">
     <block wx:for="{{messages}}" wx:key="index">
-      <view wx:if="{{item.type === 'text'}}" class="message {{item.role}}-message">
-        <text>{{item.content}}</text>
+      <view wx:if="{{item.type === 'text'}}" class="message {{item.role === 'user' ? 'user-message' : 'bot-message'}}">
+        {{item.content}}
       </view>
 
-      <view wx:elif="{{item.type === 'dish'}}" class="bot-message message dish-card">
-        <image src="{{item.image}}" class="dish-img" mode="aspectFill" />
+      <view wx:elif="{{item.type === 'dish'}}" class="dish-card" bindtap="onDishClick" data-dish="{{item.dish}}">
+        <image class="dish-img" src="{{item.dish.image}}" />
         <view class="dish-info">
-          <text class="dish-name">{{item.name}}</text>
+          <text class="dish-name">{{item.dish.name}}</text>
         </view>
       </view>
     </block>
   </scroll-view>
 
   <view class="chat-input">
-    <input 
-  placeholder="{{lang.recommend_input_placeholder}}" 
-  value="{{userInput}}" 
-  bindinput="onInputChange" 
-/>
-<button bindtap="onSend">{{lang.recommend_send_button}}</button>
+    <input placeholder="{{lang.recommend_input_placeholder}}" bindinput="onInputChange" value="{{userInput}}" />
+    <button bindtap="onSend">{{lang.recommend_send_button}}</button>
+  </view>
+
+  <!-- 弹窗 -->
+  <view wx:if="{{showPopup}}" class="popup-mask" bindtap="closePopup">
+    <view class="popup-content" catchtap="true">
+      <image class="popup-image" src="{{popupDish.image}}" mode="aspectFill" />
+      <view class="popup-detail">
+        <text class="popup-title">{{popupDish.name}}</text>
+        <text>{{lang.index_rate}}：{{popupDish.averageRating}}</text>
+        <text>{{popupDish.price}}{{lang.currency_unit}}</text>
+        <text>{{popupDish.description}}</text>
+        <view class="popup-tags">
+          <text wx:for="{{popupDish.tags}}" wx:key="tag" class="tag">{{item}}</text>
+        </view>
+        <text class="popup-location">{{popupDish.location}}</text>
+        <button class="rate-button" bindtap="toRatingPage">{{lang.index_rate}}</button>
+      </view>
+    </view>
   </view>
 </view>

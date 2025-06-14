@@ -5,13 +5,14 @@ Page({
   data: {
     messages: [],
     userInput: '',
-    lang: {}
+    lang: {},
+    popupDish: null,
+    showPopup: false
   },
 
   onLoad() {
     const language = wx.getStorageSync('language') || 'zh';
     const lang = i18n[language];
-
     this.setData({
       lang,
       messages: [
@@ -48,7 +49,7 @@ Page({
         if (matched.length > 0) {
           this.appendMessage('bot', this.data.lang.recommend_result_prefix);
           matched.forEach(dish => {
-            this.appendDishCard(dish.name, dish.image);
+            this.appendDishCard(dish);
           });
         } else {
           this.appendMessage('bot', this.data.lang.recommend_no_result);
@@ -67,8 +68,8 @@ Page({
     this.setData({ messages });
   },
 
-  appendDishCard(name, image) {
-    const messages = [...this.data.messages, { type: 'dish', name, image }];
+  appendDishCard(dish) {
+    const messages = [...this.data.messages, { type: 'dish', dish }];
     this.setData({ messages });
   },
 
@@ -85,5 +86,27 @@ Page({
       messages.pop();
       this.setData({ messages });
     }
+  },
+
+  onDishClick(e) {
+    const dish = e.currentTarget.dataset.dish;
+    this.setData({
+      popupDish: dish,
+      showPopup: true
+    });
+  },
+
+  closePopup() {
+    this.setData({
+      showPopup: false,
+      popupDish: null
+    });
+  },
+
+  toRatingPage() {
+    const id = this.data.popupDish._id;
+    wx.navigateTo({
+      url: `/pages/detail/detail?id=${id}`
+    });
   }
 });

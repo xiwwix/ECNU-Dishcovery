@@ -38,6 +38,11 @@ module.exports = {
     category_drink: '饮品',
     filter_confirm: '确认',
     filter_cancel: '取消',
+    filter_all: '全部',
+    filter_category_taste: '口味',
+filter_category_location: '地点',
+filter_category_category: '种类',
+
     //community
     community_search_ph: '搜索帖子或关键词…',
     community_search_btn: '搜索',
@@ -94,7 +99,6 @@ recommend_send_button: '发送'
     filter_category_taste: 'Taste',
     filter_category_location: 'Location',
     filter_category_category: 'Category',
-    filter_all: 'All',
     canteen_hedong: 'Hedong Canteen',
     canteen_hexi: 'Hexi Canteen',
     canteen_liwa: 'Liwa Canteen',
